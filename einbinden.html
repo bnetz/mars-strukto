@@ -1,0 +1,98 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Mars-Strukto einbinden</title>
+<meta name="description" content="Mars-Strukto in die eigene Seite einbauen: zwei Zeilen, Kopie auf dem eigenen Server, Datenschutz, Lizenz und Versionen.">
+<link rel="icon" href="img/symbol.svg" type="image/svg+xml">
+<link rel="stylesheet" href="css/seite.css">
+<script src="js/schrift.js"></script>
+</head>
+<body class="ms-text">
+<header class="ms-kopf">
+  <a class="ms-logo" href="index.html"><img src="img/logo.svg" width="322" height="40" alt="Mars-Strukto – Struktogramm-Editor"></a>
+  <nav>
+    <a href="index.html">Zum Editor</a>
+    <a href="https://escape-from-mars.de/" target="_blank" rel="noopener">Escape from Mars ↗</a>
+  </nav>
+</header>
+<main>
+<h1>Mars-Strukto einbinden</h1>
+<p class="ms-einleitung">Mars-Strukto ist der Struktogramm-Editor aus dem Lernspiel <a href="https://escape-from-mars.de/">Escape from Mars</a>. Schülerinnen und Schüler bauen damit Struktogramme nach der Operatorenliste für Struktogramme (Abitur Baden-Württemberg, Version 2.2), führen sie aus – mit Konsole, Ein- und Ausgabe, Variablenanzeige und Schritt-für-Schritt-Ablauf – und speichern sie als Datei oder Bild. Alles läuft im Browser, ohne Anmeldung, ohne Cookies, ohne Bibliotheken.</p>
+<div class="ms-knoepfe"><a class="ms-knopf voll" href="index.html">Editor öffnen</a><a class="ms-knopf rand" href="https://escape-from-mars.de/mars-strukto/mars-strukto.zip" download>Herunterladen (ZIP)</a></div>
+<p>Diese Seite ist für Lehrkräfte und alle, die den Editor in eine eigene Seite (Schulhomepage, Moodle-Textseite, eigene Website) einbauen möchten. Es gibt zwei Wege.</p>
+
+<h2>Weg 1: In zwei Zeilen von escape-from-mars.de einbinden</h2>
+<p>Diese zwei Zeilen an die Stelle der eigenen Seite setzen, an der der Editor erscheinen soll:</p>
+<pre><code>&lt;script src="https://escape-from-mars.de/mars-strukto/1/mars-strukto.js"&gt;&lt;/script&gt;
+&lt;div class="mars-strukto"&gt;&lt;/div&gt;</code></pre>
+<p>Das ist alles. Die erste Zeile lädt den Editor (Skripte, Aussehen und Schriften) von escape-from-mars.de, die zweite legt fest, wo er erscheint. Verbesserungen an Version 1 kommen bei diesem Weg automatisch an.</p>
+<p class="ms-hinweis"><b>Datenschutz bei Weg 1:</b> Der Browser Ihrer Besucher lädt dabei Dateien von escape-from-mars.de; dabei werden – wie bei jedem Abruf aus dem Internet – IP-Adresse, Browserangaben und die Adresse Ihrer Seite übermittelt. Erwähnen Sie das in Ihrer Datenschutzerklärung (Textvorschlag <a href="#datenschutz">unten</a>). Wer das vermeiden will, nimmt Weg 2.</p>
+
+<h3>Einstellungen</h3>
+<table>
+<tr><th>Angabe am <code>div</code></th><th>Wirkung</th></tr>
+<tr><td><code>style="height: 600px"</code></td><td>Höhe des Editors. Ohne Angabe: drei Viertel der Fensterhöhe, mindestens 520 Pixel.</td></tr>
+<tr><td><code>data-name="Notenschnitt"</code></td><td>Programmname für ein neues Struktogramm.</td></tr>
+<tr><td><code>data-speichern="aufgabe-3"</code></td><td>Unter diesem Namen merkt sich der Browser das Struktogramm. Nützlich, wenn mehrere Seiten den Editor enthalten und jede ihr eigenes Struktogramm behalten soll. <code>data-speichern="nein"</code> merkt nichts.</td></tr>
+</table>
+<p>Beispiel mit allen Angaben:</p>
+<pre><code>&lt;script src="https://escape-from-mars.de/mars-strukto/1/mars-strukto.js"&gt;&lt;/script&gt;
+&lt;div class="mars-strukto" data-name="Notenschnitt" data-speichern="aufgabe-3" style="height: 600px"&gt;&lt;/div&gt;</code></pre>
+<p>Mehrere Editoren auf einer Seite sind möglich: einfach mehrere <code>div</code> mit der Klasse <code>mars-strukto</code> einsetzen (die Skriptzeile nur einmal). Sie laufen unabhängig voneinander.</p>
+
+<h3>Hinweise</h3>
+<ul>
+<li>In Bludit und anderen Systemen, die Markdown verarbeiten: keine Leerzeile zwischen den beiden Zeilen.</li>
+<li>Der Editor braucht etwa 900 Pixel Breite für die Ansicht nebeneinander; schmaler stehen Struktogramm und Konsole untereinander.</li>
+<li>Die einbindende Seite sollte keine eigenen globalen JavaScript-Namen <code>Programm</code>, <code>Struktogramm</code>, <code>Interp</code>, <code>SgEditor</code>, <code>SgArbeitsplatz</code>, <code>SgPaket</code>, <code>SgSchrift</code>, <code>SgEinbau</code> oder <code>MarsStrukto</code> verwenden (außer natürlich <code>MarsStrukto</code> über die Schnittstelle).</li>
+</ul>
+
+<h2>Eigene Befehle anmelden (Schnittstelle)</h2>
+<p>Eine Seite kann dem Editor eigene Befehle beibringen – etwa die Befehle einer Roboter-Welt, eines Spiels oder einer Simulation, so wie Peetie in Escape from Mars. Der Editor schlägt sie dann vor, prüft sie und ruft beim Ausführen eine JavaScript-Funktion der Seite auf:</p>
+<pre><code>&lt;script src="https://escape-from-mars.de/mars-strukto/1/mars-strukto.js"&gt;&lt;/script&gt;
+&lt;div class="mars-strukto"&gt;&lt;/div&gt;
+&lt;script&gt;
+  MarsStrukto.befehle([
+    { name: 'geheVor', text: 'Der Roboter geht ein Feld vor.',
+      ausfuehren: async function () { /* Roboter bewegen */ } },
+    { name: 'wandVoraus', rueckgabe: 'Wahrheitswert', text: 'wahr, wenn vorne eine Wand ist.',
+      ausfuehren: function () { return false; } }
+  ]);
+&lt;/script&gt;</code></pre>
+<p>Die vollständige Beschreibung – Parameter und Datentypen, Rückgaben, Fehlermeldungen, Animationen, Start und Ende eines Laufs – steht in <a href="API.md">API.md</a>; sie ist so geschrieben, dass auch ein KI-Assistent damit arbeiten kann. Ein lauffähiges Beispiel mit einer kleinen Roboter-Welt: <a href="beispiel-roboter.html">Beispiel: eigene Befehle</a>.</p>
+
+<h2>Weg 2: Kopie auf dem eigenen Server (oder offline)</h2>
+<p><a href="https://escape-from-mars.de/mars-strukto/mars-strukto.zip" download>mars-strukto.zip</a> herunterladen und entpacken. Der Ordner <code>mars-strukto</code> enthält alles, was der Editor braucht.</p>
+<ul>
+<li><b>Auf dem eigenen Server:</b> den Ordner hochladen und die zwei Zeilen mit dem eigenen Pfad einsetzen, z. B. <code>&lt;script src="/mars-strukto/mars-strukto.js"&gt;&lt;/script&gt;</code>. Dann entsteht keine Verbindung zu escape-from-mars.de. Neue Versionen kommen bei diesem Weg nicht von selbst an.</li>
+<li><b>Offline</b> (Schulrechner, USB-Stick): <code>index.html</code> im Ordner doppelklicken. Läuft ohne Internet.</li>
+</ul>
+
+<h2>Dateien und Speichern</h2>
+<p>Struktogramme werden als <code>.struktogramm.json</code> gespeichert, Bilder als PNG oder SVG. Die Dateien sind dieselben wie in Escape from Mars – Struktogramme lassen sich zwischen beiden hin- und hertauschen. Zusätzlich merkt sich der Browser das aktuelle Struktogramm (Local Storage), sodass nach dem Neuladen nichts verloren ist. In Schulnetzen, die Browserdaten beim Abmelden löschen, hilft nur „Speichern“.</p>
+
+<h2 id="datenschutz">Datenschutz: Textvorschlag für Ihre Datenschutzerklärung</h2>
+<p class="ms-hinweis">Kein Rechtsrat – bitte an die eigene Seite anpassen. Bei Weg 2 entfällt der erste Absatz.</p>
+<div class="ms-zitat">
+<p><b>Struktogramm-Editor Mars-Strukto</b></p>
+<p>Auf dieser Seite ist der Struktogramm-Editor Mars-Strukto eingebunden. Seine Dateien (Skripte und Stile, die Schriften sind darin enthalten) lädt Ihr Browser vom Server escape-from-mars.de. Dabei werden – wie bei jedem Abruf einer Datei aus dem Internet – Ihre IP-Adresse, Angaben zu Ihrem Browser und die Adresse dieser Seite an den Betreiber von escape-from-mars.de übermittelt. Dieser verwendet die Angaben nach eigener Aussage nur in seinen Server-Logfiles, die anonymisiert und automatisch gelöscht werden; er setzt keine Cookies und zählt die Aufrufe nicht (Datenschutzerklärung: https://informatik-bg.de/datenschutz). Rechtsgrundlage ist unser berechtigtes Interesse, Ihnen den Editor für den Unterricht bereitzustellen (Art. 6 Abs. 1 lit. f DSGVO).</p>
+<p>Was Sie im Editor bauen, ausführen oder eingeben, bleibt in Ihrem Browser und wird weder an uns noch an escape-from-mars.de übertragen. Damit Ihre Arbeit nicht verloren geht, speichert der Editor das aktuelle Struktogramm und die Stellung des Tempo-Reglers im Local Storage Ihres Browsers (unter der Adresse dieser Seite). Das ist für die von Ihnen gewünschte Funktion erforderlich (§ 25 Abs. 2 Nr. 2 TDDDG). Sie können die Daten jederzeit über die Einstellungen Ihres Browsers löschen („Websitedaten löschen“).</p>
+</div>
+
+<h2>Lizenz</h2>
+<p>Mars-Strukto steht unter der <b>MIT-Lizenz</b>: Sie dürfen den Editor kostenlos benutzen, einbauen, kopieren, verändern und weitergeben. Bedingung: Der Lizenzhinweis (Datei <code>LIZENZ.txt</code>) bleibt dabei. Der Editor kommt <b>ohne Gewähr und ohne Unterstützung</b> – es gibt keinen Anspruch auf Hilfe, Fehlerbehebung oder Weiterentwicklung.</p>
+<p>Die eingebetteten Schriften „Mars Sans“ und „Mars Code“ sind umbenannte Teilmengen von Source Sans Pro und Source Code Pro (Adobe), die Seiten von Mars-Strukto verwenden außerdem Barlow. Alle drei stehen unter der SIL Open Font License 1.1 (Dateien <code>fonts/OFL*.txt</code>) und kommen vom selben Server wie der Editor. Der Schriftzug „Mars-Strukto“ ist eine Grafik mit der Schrift Nasalization (Typodermic Fonts).</p>
+<p><a href="LIZENZ.txt">LIZENZ.txt</a> · <a href="fonts/OFL.txt">fonts/OFL.txt</a></p>
+
+<h2>Versionen</h2>
+<p>Die Adresse <code>…/mars-strukto/1/</code> bleibt für Version 1 bestehen und bekommt verträgliche Verbesserungen und Fehlerkorrekturen. Gespeicherte Struktogramme lassen sich auch mit späteren Versionen öffnen. Ändert sich etwas grundlegend, gibt es eine neue Adresse (<code>…/2/</code>); die alte bleibt erhalten.</p>
+<table>
+<tr><th>Version</th><th>Datum</th><th>Änderungen</th></tr>
+<tr><td>1.0</td><td>26.10.2026</td><td>Erste Fassung: Editor aus Escape from Mars als eigenständiges Werkzeug mit Ausführen, Konsole, Variablen, Schritt-Betrieb, Speichern, Bild-Export; Einbinden in zwei Zeilen; Schnittstelle für eigene Befehle (API.md).</td></tr>
+</table>
+<p class="ms-fuss">Mars-Strukto · © Berthold Metz 2026 · <a href="https://escape-from-mars.de/">escape-from-mars.de</a> · <a href="https://informatik-bg.de/impressum" target="_blank" rel="noopener">Impressum</a> · <a href="https://informatik-bg.de/datenschutz" target="_blank" rel="noopener">Datenschutz</a></p>
+</main>
+</body>
+</html>

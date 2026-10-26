@@ -1,0 +1,82 @@
+/* Mars-Strukto: Aussehen der eigenen Seiten (index.html, einbinden.html) – nicht des eingebauten Editors.
+   Schriften liegen im Ordner fonts/ und kommen vom selben Server wie die Seite (keine Verbindung zu Google o. ä.):
+   Barlow (SIL Open Font License 1.1, fonts/OFL-Barlow.txt). Der Schriftzug ist eine feste Grafik (img/logo.svg, Nasalization als Umrisse –
+   als Webfont erlaubt die Lizenz von Nasalization sie nicht). Hintergrund: img/mars-oberflaeche-1600.webp, stark aufgehellt bzw. abgedunkelt. */
+@font-face { font-family: 'Barlow'; src: url('../fonts/barlow-latin-400-normal.woff2') format('woff2'); font-weight: 400; font-style: normal; font-display: swap; }
+@font-face { font-family: 'Barlow'; src: url('../fonts/barlow-latin-400-italic.woff2') format('woff2'); font-weight: 400; font-style: italic; font-display: swap; }
+@font-face { font-family: 'Barlow'; src: url('../fonts/barlow-latin-600-normal.woff2') format('woff2'); font-weight: 600; font-style: normal; font-display: swap; }
+@font-face { font-family: 'Barlow'; src: url('../fonts/barlow-latin-700-normal.woff2') format('woff2'); font-weight: 700; font-style: normal; font-display: swap; }
+
+:root {
+  --marsrot: #c8321f;        /* Marsrot: Schriftzug, Knöpfe, Links */
+  --marsrot-dunkel: #a52818; /* Links und Hover auf Weiß */
+  --nacht: #17191d;          /* Kopfleiste */
+  --text: #1e2024;
+  --grau: #5d636c;
+  --linie: #dcdfe3;
+  --flaeche: #f6f6f4;
+}
+
+/* ---------------- Kopfleiste mit Schriftzug */
+.ms-kopf { display: flex; align-items: center; flex-wrap: wrap; gap: 8px 28px; padding: 12px 20px; background: linear-gradient(90deg, rgba(23,25,29,.95) 0%, rgba(23,25,29,.93) 40%, rgba(23,25,29,.78) 100%), url('../img/mars-oberflaeche-1600.webp') center 58% / cover, var(--nacht); color: #fff; border-bottom: 2px solid var(--marsrot); font-family: 'Barlow', 'Source Sans Pro', 'Mars Sans', sans-serif; }
+.ms-logo { display: block; line-height: 0; }
+.ms-logo img { display: block; height: 40px; width: auto; }
+@media (max-width: 420px) { .ms-logo img { height: 34px; } }
+.ms-kopf nav { margin-left: auto; display: flex; flex-wrap: wrap; align-items: center; gap: 4px 22px; font-size: 15px; }
+.ms-kopf nav a { color: #cfd3d9; text-decoration: none; padding: 3px 0; border-bottom: 1px solid transparent; }
+.ms-kopf nav a:hover { color: #fff; border-bottom-color: var(--marsrot); }
+.ms-kopf nav a.ms-aktiv { color: #fff; font-weight: 600; }
+.ms-kopf .ms-version { color: #9aa1ab; font-size: 13px; }
+@media (max-width: 760px) { .ms-kopf { padding: 10px 14px; } .ms-kopf nav { margin-left: 0; gap: 2px 16px; font-size: 14px; } }
+
+/* ---------------- Editorseite */
+body.ms-editorseite { margin: 0; height: 100vh; display: flex; flex-direction: column; background: linear-gradient(rgba(234,229,224,.6), rgba(234,229,224,.6)), url('../img/mars-oberflaeche-1600.webp') center 70% / cover fixed, #eae5e0; color: var(--text); font-family: 'Barlow', 'Source Sans Pro', 'Mars Sans', sans-serif; }
+.ms-editorseite .mars-strukto { flex: 1; height: auto; min-height: 0; margin: 14px 20px 20px; }
+@media (max-width: 760px) { body.ms-editorseite { height: auto; } .ms-editorseite .mars-strukto { margin: 10px; } }
+
+/* ---------------- Textseite (einbinden.html) */
+body.ms-text { margin: 0; background: linear-gradient(rgba(255,255,255,.74), rgba(255,255,255,.74)), url('../img/mars-oberflaeche-1600.webp') center 65% / cover fixed, #fff; color: var(--text); font: 17px/1.6 'Barlow', 'Source Sans Pro', 'Mars Sans', Helvetica, Arial, sans-serif; }
+.ms-text main { max-width: 780px; margin: 0 auto; padding: 40px 20px 72px; }
+.ms-text h1 { font-weight: 700; font-size: 36px; line-height: 1.15; letter-spacing: -.005em; margin: 0 0 14px; }
+.ms-text h2 { font-size: 23px; font-weight: 700; margin: 52px 0 10px; }
+.ms-text h3 { font-size: 18px; font-weight: 600; margin: 30px 0 6px; }
+.ms-text p, .ms-text li { margin: 0 0 12px; }
+.ms-text ul { padding-left: 1.2em; }
+.ms-text a { color: var(--marsrot-dunkel); text-decoration: underline; text-decoration-thickness: 1px; text-underline-offset: 3px; }
+.ms-text a:hover { color: var(--marsrot); text-decoration-thickness: 2px; }
+.ms-text .ms-einleitung { font-size: 19px; color: #33363b; }
+.ms-text code { font-family: 'Source Code Pro', 'Mars Code', Menlo, Consolas, monospace; font-size: .86em; background: var(--flaeche); border: 1px solid #e6e6e2; padding: 0 5px; border-radius: 3px; }
+.ms-text pre:not(.sga-aus) { margin: 10px 0 18px; padding: 14px 16px; background: var(--flaeche); border: 1px solid var(--linie); border-radius: 4px; overflow-x: auto; font: 14px/1.55 'Source Code Pro', 'Mars Code', Menlo, Consolas, monospace; }
+.ms-text pre code { background: none; border: 0; padding: 0; font-size: inherit; }
+.ms-knoepfe { display: flex; flex-wrap: wrap; gap: 10px; margin: 22px 0 8px; }
+.ms-knopf { display: inline-block; padding: 9px 20px; border-radius: 3px; font-weight: 600; text-decoration: none !important; border: 1px solid var(--marsrot); }
+.ms-knopf.voll { background: var(--marsrot); color: #fff !important; }
+.ms-knopf.voll:hover { background: var(--marsrot-dunkel); border-color: var(--marsrot-dunkel); }
+.ms-knopf.rand { background: #fff; color: var(--marsrot-dunkel) !important; }
+.ms-knopf.rand:hover { background: #fbf1ef; }
+.ms-hinweis { color: var(--grau); }
+.ms-hinweis b { color: var(--text); }
+.ms-zitat { margin: 12px 0 18px; padding: 16px 20px; background: var(--flaeche); border: 1px solid var(--linie); border-radius: 4px; font-size: 16px; }
+.ms-zitat p:last-child { margin-bottom: 0; }
+.ms-text table { border-collapse: collapse; width: 100%; margin: 8px 0 16px; font-size: 16px; }
+.ms-text th { text-align: left; font-weight: 600; font-size: 13px; letter-spacing: .06em; text-transform: uppercase; color: var(--grau); border-bottom: 1px solid var(--text); padding: 6px 16px 6px 0; }
+.ms-text td { vertical-align: top; padding: 8px 16px 8px 0; border-bottom: 1px solid var(--linie); }
+.ms-text td:first-child { white-space: nowrap; }
+.ms-fuss { margin-top: 56px; padding-top: 14px; border-top: 1px solid var(--linie); color: var(--grau); font-size: 14px; }
+@media (max-width: 760px) { .ms-text main { padding-top: 26px; } .ms-text h1 { font-size: 28px; } .ms-text td:first-child { white-space: normal; } }
+/* Kopfleiste auf der Textseite: nicht wie Links im Text */
+.ms-text .ms-kopf a { text-decoration: none; }
+.ms-text .ms-logo { color: #fff; }
+.ms-text .ms-kopf nav a { color: #cfd3d9; }
+.ms-text .ms-kopf nav a:hover { color: #fff; }
+
+/* Mars ganz leicht auch hinter dem Arbeitsplatz (26.10.2026, Guana: „dass man es kaum sieht“) – nur auf der eigenen Editorseite */
+.ms-editorseite .sga { background: linear-gradient(rgba(255,255,255,.76), rgba(255,255,255,.76)), url('../img/mars-oberflaeche-1600.webp') center 65% / cover fixed, #fff; }
+.ms-editorseite .sga-editor.sg-editor, .ms-editorseite .sga-editor .sg-doc, .ms-editorseite .sga-rechts, .ms-editorseite .sga-aus, .ms-editorseite .sga-vars { background: transparent; }
+.ms-editorseite .sga-leiste, .ms-editorseite .sga-kopf { background: rgba(243,244,246,.86); }
+
+/* Fußzeile der Editorseite: Impressum und Datenschutz diskret ganz unten (26.10.2026) */
+.ms-fusszeile { flex: none; margin: -12px 20px 8px; text-align: right; font-size: 12px; color: #8a8178; }
+.ms-fusszeile a { color: #8a8178; text-decoration: none; }
+.ms-fusszeile a:hover { color: var(--marsrot); text-decoration: underline; }
+@media (max-width: 760px) { .ms-fusszeile { margin: 0 10px 10px; text-align: center; } }

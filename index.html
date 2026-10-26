@@ -1,0 +1,30 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Mars-Strukto – Struktogramm-Editor</title>
+<meta name="description" content="Mars-Strukto: Struktogramme nach der Operatorenliste (BW, Version 2.2) bauen, ausführen und als Bild speichern – im Browser, ohne Anmeldung.">
+<link rel="icon" href="img/symbol.svg" type="image/svg+xml">
+<link rel="stylesheet" href="css/seite.css">
+</head>
+<body class="ms-editorseite">
+<header class="ms-kopf">
+  <a class="ms-logo" href="index.html"><img src="img/logo.svg" width="322" height="40" alt="Mars-Strukto – Struktogramm-Editor"></a>
+  <nav>
+    <span class="ms-version" id="version"></span>
+    <a class="ms-aktiv" href="einbinden.html">Einbinden &amp; Download</a>
+    <a href="https://escape-from-mars.de/" target="_blank" rel="noopener">Escape from Mars ↗</a>
+  </nav>
+</header>
+<script src="mars-strukto.js"></script>
+<div class="mars-strukto" id="platz" data-speichern="mars-strukto"></div>
+<footer class="ms-fusszeile">© Berthold Metz · <a href="https://informatik-bg.de/impressum" target="_blank" rel="noopener">Impressum</a> · <a href="https://informatik-bg.de/datenschutz" target="_blank" rel="noopener">Datenschutz</a></footer>
+<script>
+  document.addEventListener('mars-strukto-bereit', function (e) {
+    window.sgPlatz = e.detail[0];
+    document.getElementById('version').textContent = 'Version ' + SgPaket.version;
+  });
+</script>
+</body>
+</html>

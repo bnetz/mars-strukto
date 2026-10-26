@@ -1,0 +1,339 @@
+/* Mars-Strukto (Struktogramm-Editor). Schriften: 'Source Sans Pro'/'Source Code Pro', wenn die Seite sie hat (Escape from Mars), sonst die Teilmengen 'Mars Sans'/'Mars Code' aus js/schrift.js (SIL Open Font License 1.1, fonts/OFL.txt) */
+/* Struktogramm-Editor */
+.sg-editor { display: flex; flex: 1; min-height: 0; font: 15px/1.4 'Source Sans Pro', 'Mars Sans', sans-serif; color: #1c1c1c; background: #f4f4f4; }
+.sg-main { flex: 1; display: flex; flex-direction: column; min-width: 0; min-height: 0; }
+.sg-main { position: relative; }
+.sg-tb { font: inherit; font-size: 13px; padding: 3px 10px; border: 1px solid #b8b8b8; border-radius: 4px; background: linear-gradient(#fff, #ececec); cursor: pointer; }
+.sg-tb:hover:not(:disabled) { background: linear-gradient(#fff, #e2ecf5); border-color: #8aa9c1; }
+/* Statuszeile: feste Höhe, damit beim Erscheinen von Fehlern nichts springt */
+.sg-status { flex: 0 0 auto; height: 26px; line-height: 26px; padding: 0 10px; font-size: 13px; color: #2e7d32; background: #eef6ee; border-bottom: 1px solid #d5e3d5; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.sg-status.has-errors { background: #fbe3e3; color: #900; border-bottom-color: #e4b0b0; cursor: pointer; }
+.sg-status.has-errors:hover { background: #f7d2d2; }
+/* Hinweis beim Verschieben schwebt über dem Dokument */
+.sg-movebar { position: absolute; left: 0; right: 0; top: 26px; z-index: 5; display: flex; align-items: center; gap: 10px; padding: 5px 10px; background: #fff3b0; border-bottom: 1px solid #d9b64b; font-size: 13px; box-shadow: 0 2px 6px rgba(0,0,0,.15); }
+.sg-doc { flex: 1; overflow: auto; padding: 16px 22px 60px; }
+.sg-class { display: flex; align-items: baseline; gap: 10px 18px; margin-bottom: 12px; flex-wrap: wrap; }
+.sg-title { font-size: 1.3em; font-weight: 600; color: #1c1c1c; flex: 1 1 auto; min-width: 0; }
+.sg-who { display: flex; align-items: baseline; gap: 8px; flex: 0 1 280px; min-width: 200px; }
+.sg-who .k { font-size: .9em; color: #666; white-space: nowrap; }
+.sg-who .sg-name { font-size: 1em; font-weight: 400; }
+.sg-class .k { font-size: 1.1em; color: #666; white-space: nowrap; }
+.sg-name { font: inherit; font-size: 1.25em; font-weight: 600; flex: 1; min-width: 0; max-width: 420px; padding: 2px 8px; border: 1px solid #cfcfcf; border-radius: 4px; background: #fff; color: #1c1c1c; outline: none; }
+.sg-name::placeholder { font-weight: 400; color: #a0a0a0; }
+.sg-name:focus { border-color: #2a6fd6; box-shadow: 0 0 0 2px rgba(42,111,214,.25); }
+.sg-name.err { border-color: #c33; background: #fdeaea; }
+.sg-section { margin-bottom: 14px; }
+.sg-vars-empty { margin-bottom: 6px; }
+.sg-vars-add { display: inline-block; font-size: .85em; color: #8a9bb0; padding: 1px 6px; margin-left: -6px; border-radius: 4px; cursor: pointer; }
+.sg-vars-add:hover { background: #e3eefb; color: #2a6fd6; }
+.sg-seclabel { font-size: .85em; text-transform: uppercase; letter-spacing: .5px; color: #666; margin: 6px 0 3px; }
+.sg-method { margin: 10px 0 18px; }
+.sg-mhead { display: inline-block; font-weight: 600; font-family: 'Source Code Pro', 'Mars Code', monospace; font-size: .95em; background: #fff; border: 1px solid #1c1c1c; border-bottom: none; padding: 3px 10px; border-radius: 4px 4px 0 0; }
+.sg-mhead.editable { cursor: pointer; }
+.sg-mhead.editable:hover { background: #eef4fb; }
+.sg-mhead.err { background: #fbe3e3; border-color: #c33; }
+.sg-method > .sg-cont { border: 1px solid #1c1c1c; background: #fff; }
+.sg-section > .sg-cont { border: 1px solid #1c1c1c; background: #fff; }
+.sg-addm { font: inherit; font-size: 13px; padding: 4px 12px; border: 1px dashed #888; border-radius: 4px; background: #fafafa; cursor: pointer; color: #333; }
+.sg-addm:hover { background: #eef4fb; border-color: #4a7ab0; }
+
+/* Kästchen */
+.sg-cont { display: flex; flex-direction: column; min-width: 0; }
+.sg-box { position: relative; background: #fff; border-top: 1px solid #1c1c1c; }
+.sg-cont > .sg-box:first-of-type, .sg-ins:first-child + .sg-box { border-top: none; }
+.sg-box + .sg-ins + .sg-box { border-top: 1px solid #1c1c1c; }
+.sg-text { padding: 4px 10px; white-space: pre-wrap; word-break: break-word; min-height: 1.4em; cursor: text; }
+.sg-text.empty { color: #999; font-style: italic; }
+.sg-box.selected { z-index: 1; }
+/* Auswahlrahmen als eigene Ebene über den Kindern: Eine Umrandung per outline malt Chrome/Edge unter die
+   weißen Kästchen und Einfügestellen der Zweige (Verzweigung, Schleife) – dann fehlten dort Teile des Rahmens. */
+.sg-box.selected::after { content: ''; position: absolute; left: 0; top: 0; right: 0; bottom: 0; border: 2px solid #2a6fd6; pointer-events: none; z-index: 3; }
+.sg-box.err > .sg-text, .sg-box.err > .sg-if-head > .sg-cond { background: #fdeaea; }
+.sg-box.err { box-shadow: inset 3px 0 0 #d33; }
+.sg-box.active > .sg-text, .sg-box.active > .sg-if-head, .sg-box.active > .sg-loop-head { background: #fff3b0 !important; }
+/* Schritt-Betrieb: zuletzt ausgeführtes Kästchen grün, nächstes gelb mit Abzeichen (01.10.2026) */
+.sg-box.ausgefuehrt > .sg-text, .sg-box.ausgefuehrt > .sg-if-head, .sg-box.ausgefuehrt > .sg-loop-head { background: #d7f5dc !important; }
+.sg-box.ausgefuehrt > .sg-text, .sg-box.ausgefuehrt > .sg-loop-head, .sg-box.naechster > .sg-text, .sg-box.naechster > .sg-loop-head { position: relative; }
+.sg-box.ausgefuehrt > .sg-text::after, .sg-box.ausgefuehrt > .sg-if-head::after, .sg-box.ausgefuehrt > .sg-loop-head::after,
+.sg-box.naechster > .sg-text::after, .sg-box.naechster > .sg-if-head::after, .sg-box.naechster > .sg-loop-head::after {
+  position: absolute; right: 6px; top: 3px; padding: 0 7px; border-radius: 999px; font: 600 10.5px/1.6 'Quicksand', 'Source Sans Pro', 'Mars Sans', sans-serif; letter-spacing: .3px; pointer-events: none; z-index: 1; }
+.sg-box.ausgefuehrt > .sg-text::after, .sg-box.ausgefuehrt > .sg-if-head::after, .sg-box.ausgefuehrt > .sg-loop-head::after { content: '✓ ausgeführt'; background: #2e9e4a; color: #fff; }
+.sg-box.naechster > .sg-text::after, .sg-box.naechster > .sg-if-head::after, .sg-box.naechster > .sg-loop-head::after { content: '▶ nächster Schritt'; background: #e0a800; color: #fff; }
+.sg-errmsg { font-size: 12.5px; color: #900; background: #fbe3e3; border-top: 1px dashed #d99; padding: 2px 10px; }
+/* Verzweigung */
+.sg-if-head { position: relative; padding: 4px 34px 1.3em; text-align: center; }
+.sg-if-head .sg-cond { padding: 0 6px; display: inline-block; min-width: 4em; position: relative; z-index: 1; background: #fff; }
+.sg-diag { position: absolute; left: 0; top: 0; width: 100%; height: 100%; pointer-events: none; }
+.sg-diag line { stroke: #1c1c1c; stroke-width: 1; vector-effect: non-scaling-stroke; }
+.sg-if-head .j, .sg-if-head .n { position: absolute; bottom: 1px; font-size: .9em; color: #333; }
+.sg-if-head .j { left: 6px; } .sg-if-head .n { right: 6px; }
+.sg-if-body { display: flex; border-top: 1px solid #1c1c1c; }
+.sg-if-body > .sg-cont { flex: 1 1 0; min-width: 0; }
+.sg-if-body > .then { border-right: 1px solid #1c1c1c; }
+/* Schleife */
+.sg-loop-head { padding: 4px 10px; }
+.sg-loop-body { margin-left: 26px; border-left: 1px solid #1c1c1c; border-top: 1px solid #1c1c1c; }
+/* Missionsrahmen (vorgegeben, nicht bearbeitbar) */
+.sg-rahmen > .sg-loop-head { background: #eef1f5; color: #2b3a4e; font-style: italic; cursor: default; }
+.sg-rahmen > .sg-loop-body { border-left-color: #6b7c93; }
+/* vorgegebenes Array einer Übung (Trainingscamp): fest, nicht bearbeitbar */
+.sg-vorgabe > .sg-text { background: #eef1f5; color: #2b3a4e; font-style: italic; cursor: default; }
+.sg-vorgabe-hinweis { margin-left: 10px; font-size: .8em; color: #6b7c93; font-style: normal; font-weight: 400; }
+.sg-mhead.fest { background: #eef1f5; color: #2b3a4e; cursor: default; }
+/* Einfügezonen */
+/* Bearbeiten */
+.sg-edit { font: inherit; width: 100%; box-sizing: border-box; border: 1px solid #2a6fd6; border-radius: 2px; padding: 3px 9px; resize: none; outline: none; background: #fff; box-shadow: 0 0 0 2px rgba(42,111,214,.25); line-height: 1.4; overflow: hidden; }
+.sg-editwrap { position: relative; }
+.sg-editwrap > textarea.sg-edit { position: relative; z-index: 1; background: transparent; }
+.sg-hl { position: absolute; inset: 0; margin: 0; color: transparent; white-space: pre-wrap; overflow-wrap: break-word; word-break: break-word; overflow: hidden; pointer-events: none; }
+.sg-if-head .sg-editwrap { width: 70%; display: inline-block; text-align: left; position: relative; z-index: 1; }
+/* Platzhalter in Textbausteinen: Name blau, Zahl/Wert gelb, Bedingung grün, Datentyp lila */
+.sg-hl mark { color: transparent; border-radius: 3px; }
+.sg-hl mark.ph-name { background: #cfe3ff; box-shadow: inset 0 -2px 0 #5b8fd9; }
+.sg-hl mark.ph-wert { background: #ffeaa0; box-shadow: inset 0 -2px 0 #d9a520; }
+.sg-hl mark.ph-bed { background: #cdeed6; box-shadow: inset 0 -2px 0 #3f9e5a; }
+.sg-hl mark.ph-typ { background: #e6dcff; box-shadow: inset 0 -2px 0 #8a6ad6; }
+/* Menüs */
+.sg-menu, .sg-ac { position: fixed; z-index: 2000; background: #fff; border: 1px solid #aaa; box-shadow: 0 6px 18px rgba(0,0,0,.25); border-radius: 4px; padding: 4px 0; min-width: 240px; font-size: 14px; }
+.sg-mi { padding: 5px 14px; cursor: pointer; }
+.sg-mi:hover, .sg-mi.sel { background: #2a6fd6; color: #fff; }
+.sg-insmenu.kb .sg-mi:hover:not(.sel) { background: none; color: inherit; }
+.sg-insmenu.kb .sg-mi:hover:not(.sel) .acc { color: #888; }
+.sg-mhint { border-top: 1px solid #e2e2e2; margin-top: 4px; padding: 4px 14px 1px; font-size: 12px; color: #888; }
+.sg-ac { max-height: 260px; overflow: auto; min-width: 360px; max-width: 480px; }
+.sg-aci { padding: 3px 10px; cursor: pointer; display: flex; gap: 10px; align-items: baseline; }
+.sg-aci .lbl { white-space: nowrap; }
+.sg-aci.cmd .lbl { font-family: 'Source Code Pro', 'Mars Code', monospace; font-size: 13px; }
+.sg-aci.var .lbl { font-family: 'Source Code Pro', 'Mars Code', monospace; font-size: 13px; font-weight: 600; }
+.sg-aci .doc { color: #777; font-size: 12px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.sg-aci.sel { background: #2a6fd6; color: #fff; }
+.sg-aci.sel .doc { color: #dfe8f7; }
+/* Seitenleiste */
+.sg-side { width: 270px; flex: 0 0 auto; overflow: auto; border-left: 1px solid #cfcfcf; background: #f7f7f7; padding: 6px 0 20px; font-size: 13.5px; }
+.sg-group summary { cursor: pointer; padding: 5px 10px; font-weight: 600; background: #ececec; border-bottom: 1px solid #ddd; user-select: none; }
+.sg-sitem { padding: 3px 10px 3px 16px; cursor: pointer; border-bottom: 1px solid #f0f0f0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.sg-sitem:hover { background: #e3eefb; }
+.sg-sitem.cmd { font-family: 'Source Code Pro', 'Mars Code', monospace; font-size: 12.5px; }
+.sg-note { padding: 6px 12px; color: #444; line-height: 1.5; }
+.sg-note code { background: #eee; padding: 0 4px; border-radius: 3px; font-family: 'Source Code Pro', 'Mars Code', monospace; font-size: 12px; }
+/* Dialog Unterprogramm */
+.sg-mdlg label { display: block; margin: 8px 0; font-size: 14px; }
+.sg-mdlg input, .sg-mdlg select { font: inherit; width: 100%; box-sizing: border-box; padding: 4px 6px; margin-top: 2px; }
+.sg-mdlg .fxbtn.danger { color: #a00; margin-right: auto; }
+
+/* Ja-Zweig grünlich, Nein-Zweig rötlich (Einfügezonen und leere Zweige, nur direkt im Zweig) */
+.sg-ins.target { height: 14px; background: #e3f5e3; }
+.sg-ins.target .plus { opacity: 1; background: #2a9d3a; }
+.sg-ins.blocked { cursor: not-allowed; }
+.sg-toolbar.moving { background: #e3f5e3; }
+.sg-menu .sg-mi { display: flex; justify-content: space-between; gap: 24px; }
+.sg-menu .acc { color: #888; font-size: 12px; }
+.sg-menu .sg-mi:hover .acc, .sg-menu .sg-mi.sel .acc { color: #dfe8f7; }
+.sg-sep { border-top: 1px solid #ddd; margin: 4px 0; }
+
+/* Einfügestellen: Farbe je nach Ort (blau; im Ja-Zweig grün, im Nein-Zweig rot) */
+.sg-cont { --ins: #2a6fd6; --ins-bg: #e8f0fc; --ins-soft: #8fb0da; }
+.sg-if-body > .then { --ins: #2b9453; --ins-bg: #e5f4ea; --ins-soft: #7fb894; }
+.sg-if-body > .else { --ins: #cf4a36; --ins-bg: #fbe9e6; --ins-soft: #d69a90; }
+/* Zwischen zwei Kästchen: beim Überfahren ein kräftiger Balken über die ganze Breite mit großem Plus */
+.sg-ins { height: 10px; position: relative; cursor: pointer; background: #fff; z-index: 2; }
+.sg-ins::before { content: ''; position: absolute; left: 4px; right: 4px; top: 50%; height: 4px; margin-top: -2px; border-radius: 2px; background: var(--ins); opacity: 0; transition: opacity .1s; }
+.sg-ins .plus { position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%) scale(.8); width: 24px; height: 24px; line-height: 22px; text-align: center; border-radius: 50%; background: var(--ins); color: #fff; font-size: 19px; font-weight: 700; border: 2px solid #fff; box-sizing: border-box; box-shadow: 0 1px 4px rgba(0,0,0,.3); opacity: 0; transition: opacity .1s, transform .1s; pointer-events: none; }
+.sg-ins:hover, .sg-ins.menu-at { background: var(--ins-bg); }
+.sg-ins:hover::before, .sg-ins.menu-at::before { opacity: 1; }
+.sg-ins:hover .plus, .sg-ins.menu-at .plus { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+/* Leerer Bereich: „Anweisung einfügen“ mit rundem Plus */
+.sg-empty { display: flex; align-items: center; gap: 8px; padding: 7px 10px; color: var(--ins-soft); font-size: .95em; cursor: pointer; min-height: 1.4em; outline: 2px dashed transparent; outline-offset: -4px; border-radius: 4px; }
+.sg-empty::before { content: '+'; flex: none; width: 20px; height: 20px; line-height: 19px; text-align: center; border-radius: 50%; background: var(--ins-soft); color: #fff; font-weight: 700; font-size: 16px; }
+.sg-empty:hover, .sg-empty.menu-at { background: var(--ins-bg); color: var(--ins); outline-color: var(--ins); }
+.sg-empty:hover::before, .sg-empty.menu-at::before { background: var(--ins); }
+/* Seitenleiste: nur die Befehle der Mission; Schalter für alle */
+.sg-alle { display: flex; align-items: center; gap: 4px; padding: 8px 12px; font-size: 12.5px; color: #555; cursor: pointer; border-top: 1px solid #ddd; }
+.sg-alle input { margin: 0; }
+.sg-keine { font-size: 13px; color: #666; font-style: italic; }
+/* Befehlsübersicht (Reiter „Befehle“ unter der Welt) */
+.bf { padding: 4px 0 12px; font-size: 14px; }
+.bf-grp { font-size: 12px; text-transform: uppercase; letter-spacing: .5px; color: #777; padding: 10px 16px 3px; }
+.bf-item { display: grid; grid-template-columns: minmax(170px, max-content) 1fr; gap: 12px; align-items: center; padding: 4px 16px; border-bottom: 1px solid #f0f0f0; }
+.bf-item .bf-chip { justify-self: start; }
+.bf-item span { color: #555; }
+.bf-keine { padding: 12px 16px; color: #666; font-style: italic; }
+.bf-note { padding: 12px 16px 4px; color: #666; font-size: 13px; }
+.bf-note code { background: #eee; padding: 0 4px; border-radius: 3px; font-family: 'Source Code Pro', 'Mars Code', monospace; font-size: 12px; }
+.bf-alle { display: flex; align-items: center; gap: 4px; margin: 0; padding: 6px 16px; font-size: 13px; color: #555; cursor: pointer; border-bottom: 1px solid #dcdfe4; }
+.bf-moves { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; padding: 5px 16px 7px; border-bottom: 1px solid #f0f0f0; }
+.bf-moves span { color: #555; margin-left: 6px; }
+.bf-chip { font-family: 'Source Code Pro', 'Mars Code', monospace; font-size: 13px; padding: 2px 8px; border: 1px solid #cfd3da; border-radius: 6px; background: #fff; cursor: pointer; }
+.bf-chip:hover { background: #f0f1f4; border-color: #9aa1ad; }
+.bf-alle input { margin: 0; }
+.sg-editwrap > textarea.sg-edit { display: block; }
+/* Verschieben in einen leeren Zweig/Rumpf (07.10.2026): die ganze Lücke ist das Ziel */
+.sg-ins.sg-ins-leer { height: auto; min-height: 34px; }
+.sg-ins.sg-ins-leer.target { background: #e3f5e3; }
+/* Lückentext (12.10.2026): feste Wörter der Operatorenliste, bearbeitbar sind nur die Lücken */
+.sg-text.sg-lt { cursor: default; }
+.sg-lt .lt-slot { border-radius: 3px; padding: 0 2px; border-bottom: 1px dotted #a3acb8; cursor: text; }
+.sg-lt .lt-slot.leer { display: inline-block; min-width: .9em; height: 1.05em; vertical-align: -2px; }
+.sg-lt .lt-typ { cursor: pointer; }
+.sg-lt .lt-typ::after { content: ' ▾'; font-size: .75em; color: #8a6ad6; }
+.sg-box:hover > .sg-lt .lt-slot, .sg-box.selected > .sg-lt .lt-slot { border-bottom-color: transparent; }
+.sg-box:hover > .sg-lt .lt-name, .sg-box.selected > .sg-lt .lt-name { background: #cfe3ff; box-shadow: inset 0 -2px 0 #5b8fd9; }
+.sg-box:hover > .sg-lt .lt-wert, .sg-box.selected > .sg-lt .lt-wert { background: #ffeaa0; box-shadow: inset 0 -2px 0 #d9a520; }
+.sg-box:hover > .sg-lt .lt-typ, .sg-box.selected > .sg-lt .lt-typ { background: #e6dcff; box-shadow: inset 0 -2px 0 #8a6ad6; }
+.sg-box:hover > .sg-lt .lt-bed, .sg-box.selected > .sg-lt .lt-bed { background: #cdeed6; box-shadow: inset 0 -2px 0 #3f9e5a; }
+.sg-box:hover > .sg-lt .lt-fix, .sg-box.selected > .sg-lt .lt-fix { color: #666; }
+.sg-lt .lt-slot:hover { outline: 1px solid rgba(0,0,0,.25); }
+/* Freitext: eigener Text statt eines Bausteins (rechte Maustaste) – kleines Schild, nur im Editor */
+.sg-text.sg-frei { position: relative; padding-right: 74px; }
+.sg-frei-schild { position: absolute; right: 6px; top: 4px; font-size: 10.5px; line-height: 1.6; padding: 0 6px; border-radius: 999px; background: #eef1f5; color: #6b7c93; border: 1px solid #d5dbe3; font-style: normal; pointer-events: none; }
+/* Bearbeiten im Lückentext: das Textfeld ist durchsichtig, darunter die Kopie mit grauen festen Wörtern und farbigen Lücken */
+.sg-lt-edit > textarea.sg-edit { color: transparent; caret-color: #1c1c1c; }
+.sg-lt-edit > textarea.sg-edit::selection { background: rgba(42,111,214,.28); color: transparent; }
+.sg-lt-edit > .sg-hl { color: #1c1c1c; }
+.sg-lt-edit > .sg-hl .lt-fx { color: #8a8a8a; }
+.sg-lt-edit > .sg-hl mark { color: #1c1c1c; }
+.sg-lt-edit > .sg-hl mark.leer { outline: 1px dashed #8a8a8a; outline-offset: 1px; padding: 0 .3em; margin: 0 -.3em; }
+.sg-lt-hinweis { position: absolute; left: 0; top: 100%; margin-top: 4px; z-index: 30; background: #e0a800; color: #fff; font-size: 12.5px; line-height: 1.35; padding: 4px 10px; border-radius: 6px; box-shadow: 0 2px 8px rgba(0,0,0,.2); max-width: 420px; white-space: normal; text-align: left; font-style: normal; }
+.sg-ac.typ .sg-aci .lbl { font-weight: 600; }
+/* Klar sehen, wo man schreibt (24.10.2026): Markierung und Einfügemarke zeichnet der Editor selbst in die Kopie unter dem Textfeld.
+   Textfeld ganz durchsichtig; markierter Text dunkelblau mit weißer Schrift; Einfügemarke als kräftiger Strich;
+   die Lücke, in der man gerade schreibt, als weißes Feld mit kräftigem farbigem Rahmen – die übrigen Lücken blass. */
+.sg-editwrap.sg-ov > textarea.sg-edit { color: transparent; caret-color: transparent; }
+.sg-editwrap.sg-ov > textarea.sg-edit::selection { background: transparent; color: transparent; }
+.sg-editwrap.sg-ov > textarea.sg-edit::placeholder { color: #a0a0a0; }
+.sg-editwrap.sg-ov > .sg-hl, .sg-editwrap.sg-ov > .sg-hl mark { color: #1c1c1c; }
+.sg-editwrap.sg-ov.sg-fokus > textarea.sg-edit { border-color: #2a6fd6; box-shadow: 0 0 0 3px rgba(42,111,214,.35); }
+.sg-box.selected:has(> .sg-editwrap)::after, .sg-box.selected:has(> .sg-if-head > .sg-editwrap)::after { border-width: 3px; }
+.sg-hl .sg-sel { background: #1f56b8; color: #fff !important; border-radius: 2px; box-decoration-break: clone; -webkit-box-decoration-break: clone; }
+.sg-hl .sg-caret { position: relative; display: inline; }
+.sg-hl .sg-caret::after { content: ''; position: absolute; left: -1px; top: -.05em; width: 2px; height: 1.25em; background: #111; border-radius: 1px; animation: sg-caret-puls 1.1s ease-in-out infinite; }
+@keyframes sg-caret-puls { 0%, 55% { opacity: 1; } 80% { opacity: .3; } 100% { opacity: 1; } }
+/* Lücken beim Bearbeiten: blass – nur die aktive kräftig */
+.sg-lt-edit > .sg-hl mark.still { box-shadow: none; color: #3a3a3a; }
+.sg-lt-edit > .sg-hl mark.ph-name.still { background: #e6f0ff; }
+.sg-lt-edit > .sg-hl mark.ph-wert.still { background: #fff4cc; }
+.sg-lt-edit > .sg-hl mark.ph-typ.still { background: #f1ecff; }
+.sg-lt-edit > .sg-hl mark.ph-bed.still { background: #e3f6e8; }
+.sg-lt-edit > .sg-hl mark.aktiv { background: #fff; color: #000; outline: none; }
+.sg-lt-edit > .sg-hl mark.ph-name.aktiv { box-shadow: 0 0 0 2px #2a6fd6; }
+.sg-lt-edit > .sg-hl mark.ph-wert.aktiv { box-shadow: 0 0 0 2px #d9a520; }
+.sg-lt-edit > .sg-hl mark.ph-typ.aktiv { box-shadow: 0 0 0 2px #8a6ad6; }
+.sg-lt-edit > .sg-hl mark.ph-bed.aktiv { box-shadow: 0 0 0 2px #3f9e5a; }
+.sg-lt-edit > .sg-hl mark.leer.aktiv { outline: none; }
+.sg-editwrap.sg-ov.sg-fokus > .sg-hl { background: #f2f7ff; }
+.sg-lt-edit > .sg-hl mark.ph-name.aktiv { box-shadow: 0 0 0 1px #fff, 0 0 0 3px #2a6fd6; }
+.sg-lt-edit > .sg-hl mark.ph-wert.aktiv { box-shadow: 0 0 0 1px #fff, 0 0 0 3px #d9a520; }
+.sg-lt-edit > .sg-hl mark.ph-typ.aktiv { box-shadow: 0 0 0 1px #fff, 0 0 0 3px #8a6ad6; }
+.sg-lt-edit > .sg-hl mark.ph-bed.aktiv { box-shadow: 0 0 0 1px #fff, 0 0 0 3px #3f9e5a; }
+/* Kein Hüpfen beim Wechsel Anzeige ↔ Bearbeiten (24.10.2026): Lücken in der Anzeige ohne seitlichen Innenabstand
+   (Farbfläche per Schatten etwas breiter), leere Lücke ohne eigene Breite, ▾ am Datentyp schwebt und nimmt keinen Platz weg */
+.sg-lt .lt-slot { padding: 0; position: relative; }
+.sg-lt .lt-slot.leer { min-width: 0; width: 0; padding: 0 .45em; margin: 0 -.45em; }
+.sg-lt .lt-typ::after { position: absolute; left: 100%; top: -.15em; margin-left: 1px; font-size: .55em; }
+.sg-lt-edit > .sg-hl mark.ph-typ { position: relative; }
+.sg-lt-edit > .sg-hl mark.ph-typ::after { content: '▾'; position: absolute; left: 100%; top: -.15em; margin-left: 1px; font-size: .55em; color: #8a6ad6; }
+.sg-box:hover > .sg-lt .lt-name, .sg-box.selected > .sg-lt .lt-name { box-shadow: 0 0 0 2px #cfe3ff, inset 0 -2px 0 #5b8fd9; }
+.sg-box:hover > .sg-lt .lt-wert, .sg-box.selected > .sg-lt .lt-wert { box-shadow: 0 0 0 2px #ffeaa0, inset 0 -2px 0 #d9a520; }
+.sg-box:hover > .sg-lt .lt-typ, .sg-box.selected > .sg-lt .lt-typ { box-shadow: 0 0 0 2px #e6dcff, inset 0 -2px 0 #8a6ad6; }
+.sg-box:hover > .sg-lt .lt-bed, .sg-box.selected > .sg-lt .lt-bed { box-shadow: 0 0 0 2px #cdeed6, inset 0 -2px 0 #3f9e5a; }
+/* Aktive Lücke mit mehr Luft: weißes Feld mit Rahmen hinter dem Text, ohne die Zeile zu verschieben.
+   Dafür bekommt das Bearbeitungsfeld oben und unten 3px mehr Innenabstand, der negative Rand gleicht das aus (Höhe bleibt gleich). */
+.sg-editwrap.sg-lt-edit { margin: -3px 0; }
+.sg-editwrap.sg-lt-edit > .sg-edit { padding-top: 6px; padding-bottom: 6px; }
+.sg-editwrap.sg-ov > .sg-hl { isolation: isolate; }
+.sg-lt-edit > .sg-hl mark.aktiv { position: relative; background: transparent; box-shadow: none !important; }
+.sg-lt-edit > .sg-hl mark.aktiv::before { content: ''; position: absolute; z-index: -1; left: -3px; right: -3px; top: -4px; bottom: -4px; background: #fff; border: 2px solid var(--lr); border-radius: 5px; box-shadow: 0 1px 4px rgba(0,0,0,.18); }
+.sg-lt-edit > .sg-hl mark.ph-name.aktiv { --lr: #2a6fd6; }
+.sg-lt-edit > .sg-hl mark.ph-wert.aktiv { --lr: #d9a520; }
+.sg-lt-edit > .sg-hl mark.ph-typ.aktiv { --lr: #8a6ad6; }
+.sg-lt-edit > .sg-hl mark.ph-bed.aktiv { --lr: #3f9e5a; }
+.sg-lt-edit > .sg-hl mark.leer.aktiv::before { left: -.45em; right: -.45em; }
+/* Verzweigung: Bedingung beim Bearbeiten genau dort, wo sie vorher stand – mittig, gleiche Höhe (24.10.2026) */
+.sg-if-head .sg-editwrap.sg-ov > .sg-edit { text-align: center; }
+.sg-if-head .sg-editwrap.sg-ov { vertical-align: top; margin: -4px 0; }
+/* ▾ am Datentyp: in Anzeige und Bearbeiten gleich – klein oben rechts am Wort, ohne Platz zu nehmen */
+.sg-lt .lt-typ::after, .sg-lt-edit > .sg-hl mark.ph-typ::after { content: '▾'; position: absolute; left: 100%; top: 0; margin-left: 1px; font-size: 9px; line-height: 1; color: #8a6ad6; font-style: normal; }
+/* Vorschlagsliste (24.10.2026): kleine Zwischenüberschriften „häufig benötigt“ / „sonstige“; nie seitlich scrollen */
+.sg-ac { overflow-x: hidden; }
+.sg-aci .doc { min-width: 0; }
+.sg-ackopf { padding: 4px 10px 2px; font-size: 11.5px; color: #8a8a8a; letter-spacing: .3px; cursor: default; user-select: none; }
+.sg-ackopf.abstand { margin-top: 8px; border-top: 1px solid #e4e4e4; padding-top: 8px; }
+.sg-ac { max-width: 620px; max-height: 360px; }
+/* Listen so breit wie nötig (24.10.2026, Guana: Zählerschleife war abgeschnitten), höchstens Bildschirmbreite – auf dem Handy bricht die Zeile um */
+.sg-ac { width: max-content; min-width: 360px; max-width: min(820px, calc(100vw - 8px)); box-sizing: border-box; }
+.sg-aci { flex-wrap: wrap; column-gap: 10px; row-gap: 0; }
+.sg-aci .lbl { white-space: normal; }
+.sg-aci .doc { white-space: normal; flex: 1 1 220px; }
+@media (max-width: 600px) { .sg-ac { min-width: 0; } }
+/* Menüs und Vorschlagslisten heben sich vom weißen Struktogramm ab (Guana 25.10.2026): leicht bläulich-grau, kräftigerer Rand und Schatten */
+.sg-menu, .sg-ac { background: #eef2f7; border-color: #8e9bab; box-shadow: 0 8px 24px rgba(20,40,70,.28), 0 1px 3px rgba(20,40,70,.18); }
+.sg-menu .sg-sep, .sg-ac .sg-sep, .sg-ackopf.abstand { border-top-color: #cfd7e1; }
+.sg-mhint { border-top-color: #cfd7e1; color: #7a8594; }
+.sg-ackopf { color: #6f7b8a; }
+.sg-aci .doc { color: #6c7684; }
+
+/* ------------------------------------------------------------------ Grundregeln, die sonst die Seite mitbringt (25.10.2026).
+   :where() hat keine Gewichtung – die Regeln einer Seite (z. B. Escape from Mars, css/app.css) gehen immer vor. */
+:where(.hidden) { display: none !important; }
+:where(.fxbtn) { display: inline-flex; align-items: center; gap: 6px; padding: 6px 12px; border: 1px solid #b8b8b8; border-radius: 4px; background: linear-gradient(#fdfdfd, #e8e8e8); color: #222; cursor: pointer; font: 600 14px 'Source Sans Pro', 'Mars Sans', sans-serif; white-space: nowrap; }
+:where(.fxbtn:hover:not(:disabled)) { background: linear-gradient(#fff, #f0f7fb); border-color: #8aa9c1; }
+:where(.fxbtn:disabled) { opacity: .45; cursor: default; }
+:where(.fxbtn.small) { font-size: 13px; padding: 4px 10px; }
+:where(.fxbtn.primary) { background: linear-gradient(#5b8fe0, #2a6fd6); color: #fff; border-color: #245fb8; }
+:where(.fxbtn.primary:hover:not(:disabled)) { background: linear-gradient(#6a9ae6, #3b7ce0); }
+:where(.dlg-back) { position: fixed; inset: 0; background: rgba(0,0,0,.2); z-index: 1500; display: flex; align-items: center; justify-content: center; }
+:where(.dlg) { background: #fff; border: 1px solid #999; border-radius: 8px; box-shadow: 0 10px 40px rgba(0,0,0,.35); padding: 18px 20px 14px; max-width: 600px; max-height: 90vh; overflow: auto; font: 15px/1.45 'Source Sans Pro', 'Mars Sans', sans-serif; color: #1c1c1c; }
+:where(.dlg) p { margin: 6px 0; }
+:where(.dlg) .btns { display: flex; justify-content: flex-end; gap: 8px; margin-top: 16px; }
+
+/* ------------------------------------------------------------------ Arbeitsplatz (arbeitsplatz.js): Leiste, Editor, Konsole, Variablen */
+.sga { display: flex; flex-direction: column; min-height: 0; font: 15px/1.4 'Source Sans Pro', 'Mars Sans', sans-serif; color: #1c1c1c; background: #fff; border: 1px solid #cfd3da; }
+.sga, .sga *, .sga *::before, .sga *::after, .sg-menu, .sg-menu *, .sg-ac, .sg-ac *, .dlg-back, .dlg-back * { box-sizing: border-box; } /* wie in Escape from Mars (css/app.css: * { box-sizing: border-box }) */
+.sga button, .sga input, .sga label, .sga td, .sga pre, .sg-menu, .sg-ac, .dlg-back button, .dlg-back input, .dlg-back label { text-transform: none; letter-spacing: normal; text-shadow: none; } /* Regeln der Seite (z. B. button { text-transform: uppercase }) nicht übernehmen */
+.sga-leiste { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 16px; padding: 8px 10px; background: #f3f4f6; border-bottom: 1px solid #cfd3da; }
+.sga-name { font: 600 17px 'Source Sans Pro', 'Mars Sans', sans-serif; flex: 1 1 200px; min-width: 160px; max-width: 360px; padding: 3px 8px; border: 1px solid #cfcfcf; border-radius: 4px; background: #fff; color: #1c1c1c; }
+.sga-name:focus { outline: none; border-color: #2a6fd6; box-shadow: 0 0 0 2px rgba(42,111,214,.25); }
+.sga-name.err { border-color: #c33; background: #fdeaea; }
+.sga-gruppe { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; }
+.sga-tempo { display: inline-flex; align-items: center; gap: 6px; font-size: 13px; color: #555; margin-left: 4px; }
+.sga-tempo input { width: 90px; }
+.sga-tempo-wert { min-width: 4.2em; }
+.sga-rumpf { flex: 1; display: flex; min-height: 0; }
+.sga-editor { flex: 1 1 60%; display: flex; min-width: 0; min-height: 0; border-right: 1px solid #cfd3da; }
+.sga-editor .sg-editor, .sga-editor .sg-doc { background: #fff; }
+.sga-rechts { flex: 0 1 38%; min-width: 260px; display: flex; flex-direction: column; min-height: 0; background: #fafbfc; }
+.sga-kopf { display: flex; align-items: center; justify-content: space-between; gap: 8px; padding: 6px 10px; font-size: 13px; text-transform: uppercase; letter-spacing: .5px; color: #555; border-bottom: 1px solid #e3e6ea; background: #f3f4f6; }
+.sga-kopf .fxbtn { text-transform: none; letter-spacing: 0; font-size: 12px; padding: 2px 8px; }
+.sga-aus { flex: 1 1 55%; margin: 0; color: #1c1c1c; border: 0; border-radius: 0; min-height: 120px; overflow: auto; padding: 8px 10px; font: 14px/1.45 'Source Code Pro', 'Mars Code', Menlo, monospace; white-space: pre-wrap; word-break: break-word; background: #fff; }
+.sga-aus .sga-eingabe { color: #1b5fa8; font-weight: 700; }
+.sga-aus .sga-info { color: #777; font-family: 'Source Sans Pro', 'Mars Sans', sans-serif; }
+.sga-aus .sga-fehler { color: #b00020; font-family: 'Source Sans Pro', 'Mars Sans', sans-serif; }
+.sga-ein { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 8px; padding: 8px 10px; background: #fff7d6; border-top: 1px solid #e8d48a; border-bottom: 1px solid #e8d48a; }
+.sga-ein label { font-weight: 600; font-size: 14px; }
+.sga-ein input { flex: 1 1 120px; min-width: 80px; font: 14px 'Source Code Pro', 'Mars Code', monospace; padding: 4px 6px; border: 1px solid #b8b8b8; border-radius: 4px; }
+.sga-tipp { flex: 1 0 100%; color: #b00020; font-size: 13px; }
+.sga-tipp:empty { display: none; }
+.sga-vars { flex: 0 1 45%; overflow: auto; padding: 4px 10px 8px; }
+.sga-vars table { border-collapse: collapse; font-size: 13.5px; width: 100%; }
+.sga-vars td { padding: 3px 12px 3px 0; border: 0; border-bottom: 1px solid #eceef1; background: none; color: #1c1c1c; vertical-align: top; }
+.sga-vars td.n, .sga-vars td.v { font-family: 'Source Code Pro', 'Mars Code', monospace; }
+.sga-vars td.t { color: #777; font-size: 12px; white-space: nowrap; }
+.sga-vars td.v { word-break: break-word; }
+.sga-vars td.v.neu { animation: sga-neu .7s; }
+@keyframes sga-neu { from { background: #fff3b0; } to { background: transparent; } }
+.sga-leer { color: #888; font-size: 13px; padding: 6px 0; }
+@media (max-width: 760px) {
+  .sga-rumpf { flex-direction: column; }
+  .sga-editor { border-right: none; border-bottom: 1px solid #cfd3da; min-height: 60vh; }
+  .sga-rechts { min-width: 0; min-height: 300px; }
+}
+
+/* Eingebaut mit mars-strukto.js: Höhe, falls die Seite keine angibt (:where – jede Regel der Seite geht vor) */
+:where(.mars-strukto) { height: 75vh; min-height: 520px; }
+/* Arbeitsplatz im Marsrot von Mars-Strukto (26.10.2026) */
+.sga .fxbtn.primary { background: #c8321f; border-color: #a52818; color: #fff; }
+.sga .fxbtn.primary:hover:not(:disabled) { background: #a52818; border-color: #8f2214; }
+.sga-name:focus, .sga-ein input:focus { outline: none; border-color: #c8321f; box-shadow: 0 0 0 2px rgba(200,50,31,.2); }
+.sga input[type=range] { accent-color: #c8321f; }
+/* Tabellenregeln der einbindenden Seite (z. B. Rahmen um table/tr auf informatik-bg.de) nicht übernehmen (26.10.2026) */
+.sga-vars table, .sga-vars tr { border: 0; background: none; box-shadow: none; }

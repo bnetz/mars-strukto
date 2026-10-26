@@ -1,0 +1,90 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Mars-Strukto – Beispiel: eigene Befehle (Roboter)</title>
+<link rel="icon" href="img/symbol.svg" type="image/svg+xml">
+<link rel="stylesheet" href="css/seite.css">
+<style>
+  .welt-zeile { display: flex; flex-wrap: wrap; gap: 18px; align-items: flex-start; margin: 18px 0; }
+  #welt { background: #fff; border: 1px solid var(--linie); max-width: 100%; height: auto; }
+  .welt-text { flex: 1 1 260px; font-size: 16px; }
+  .ms-text .mars-strukto { height: 620px; margin: 10px 0 30px; }
+  .ms-text main.breit { max-width: 1180px; }
+</style>
+</head>
+<body class="ms-text">
+<header class="ms-kopf">
+  <a class="ms-logo" href="index.html"><img src="img/logo.svg" width="322" height="40" alt="Mars-Strukto – Struktogramm-Editor"></a>
+  <nav>
+    <a href="index.html">Zum Editor</a>
+    <a href="einbinden.html">Einbinden &amp; Download</a>
+  </nav>
+</header>
+<main class="breit">
+<h1>Beispiel: eigene Befehle anmelden</h1>
+<p class="ms-einleitung">Diese Seite zeigt die Schnittstelle von Mars-Strukto: Eine kleine Roboter-Welt meldet ihre Befehle beim Editor an. Danach kennt der Editor die Befehle, schlägt sie vor, prüft sie und führt sie aus. Den Quelltext dieser Seite (Rechtsklick › Seitenquelltext) darf man als Vorlage nehmen; die Beschreibung der Schnittstelle steht in <a href="API.md">API.md</a>.</p>
+<div class="welt-zeile">
+  <canvas id="welt" width="420" height="300" aria-label="Roboter-Welt"></canvas>
+  <div class="welt-text">
+    <p><b>Befehle:</b> <code>geheVor()</code>, <code>dreheLinks()</code>, <code>dreheRechts()</code>, <code>setzeFarbe("rot")</code> (rot, blau, gruen, gelb); Abfragen: <code>wandVoraus()</code> (Wahrheitswert), <code>schritte()</code> (Ganzzahl).</p>
+    <p><b>Aufgabe:</b> Der Roboter soll bis zur Wand laufen und jedes Feld rot färben. Dann soll er ausgeben, wie viele Schritte er gegangen ist.</p>
+  </div>
+</div>
+<script src="mars-strukto.js"></script>
+<div class="mars-strukto" data-speichern="mars-strukto-beispiel-roboter" data-name="Roboter"></div>
+<script>
+  // ---------------- Die Welt: 7 × 5 Felder, Wände am Rand und eine Mauer innen
+  var SPALTEN = 7, ZEILEN = 5, FELD = 60;
+  var MAUERN = { '4,1': true, '4,2': true, '4,3': true };
+  var FARBEN = { rot: '#d9534f', blau: '#4a7bd0', gruen: '#4caf6a', gelb: '#e8c33a' };
+  var welt;
+  function neueWelt() { welt = { x: 0, y: 2, richtung: 0, farben: {}, schritte: 0 }; zeichnen(); } // richtung: 0 Osten, 1 Süden, 2 Westen, 3 Norden
+  function vorne() { var d = [[1, 0], [0, 1], [-1, 0], [0, -1]][welt.richtung]; return { x: welt.x + d[0], y: welt.y + d[1] }; }
+  function istWand(f) { return f.x < 0 || f.y < 0 || f.x >= SPALTEN || f.y >= ZEILEN || MAUERN[f.x + ',' + f.y]; }
+  function zeichnen() {
+    var g = document.getElementById('welt').getContext('2d');
+    g.clearRect(0, 0, 420, 300);
+    for (var y = 0; y < ZEILEN; y++) for (var x = 0; x < SPALTEN; x++) {
+      g.fillStyle = MAUERN[x + ',' + y] ? '#5b5f66' : (FARBEN[welt.farben[x + ',' + y]] || '#f4f2ef');
+      g.fillRect(x * FELD + 1, y * FELD + 1, FELD - 2, FELD - 2);
+    }
+    // Roboter als Dreieck in Blickrichtung
+    var cx = welt.x * FELD + FELD / 2, cy = welt.y * FELD + FELD / 2;
+    g.save(); g.translate(cx, cy); g.rotate(welt.richtung * Math.PI / 2);
+    g.beginPath(); g.moveTo(20, 0); g.lineTo(-14, -15); g.lineTo(-14, 15); g.closePath();
+    g.fillStyle = '#c8321f'; g.fill(); g.restore();
+  }
+  function warte(ms) { return new Promise(function (r) { setTimeout(r, ms); }); }
+
+  // ---------------- Befehle bei Mars-Strukto anmelden (geht sofort nach der Skriptzeile oben)
+  MarsStrukto.befehle([
+    { name: 'geheVor', text: 'Der Roboter geht ein Feld vor.', gruppe: 'Roboter',
+      ausfuehren: async function () {
+        var f = vorne();
+        if (istWand(f)) throw new Error('Der Roboter stößt an eine Wand.');
+        welt.x = f.x; welt.y = f.y; welt.schritte++; zeichnen(); await warte(250);
+      } },
+    { name: 'dreheLinks', text: 'Der Roboter dreht sich um 90° nach links.', gruppe: 'Roboter',
+      ausfuehren: async function () { welt.richtung = (welt.richtung + 3) % 4; zeichnen(); await warte(150); } },
+    { name: 'dreheRechts', text: 'Der Roboter dreht sich um 90° nach rechts.', gruppe: 'Roboter',
+      ausfuehren: async function () { welt.richtung = (welt.richtung + 1) % 4; zeichnen(); await warte(150); } },
+    { name: 'setzeFarbe', parameter: [['farbe', 'Zeichenkette']], text: 'Färbt das Feld unter dem Roboter: rot, blau, gruen oder gelb.', gruppe: 'Roboter',
+      ausfuehren: async function (farbe) {
+        if (!FARBEN[farbe]) throw new Error('Diese Farbe gibt es nicht: ' + farbe);
+        welt.farben[welt.x + ',' + welt.y] = farbe; zeichnen(); await warte(100);
+      } },
+    { name: 'wandVoraus', rueckgabe: 'Wahrheitswert', text: 'wahr, wenn vor dem Roboter eine Wand ist.', gruppe: 'Roboter fragen',
+      ausfuehren: function () { return istWand(vorne()); } },
+    { name: 'schritte', rueckgabe: 'Ganzzahl', text: 'Wie viele Felder der Roboter schon gegangen ist.', gruppe: 'Roboter fragen',
+      ausfuehren: function () { return welt.schritte; } }
+  ]);
+  // Bei jedem Start beginnt der Roboter von vorn
+  MarsStrukto.beimStart(function () { neueWelt(); });
+  neueWelt();
+</script>
+<p class="ms-fuss">Mars-Strukto · © Berthold Metz 2026 · <a href="https://escape-from-mars.de/">escape-from-mars.de</a> · <a href="https://informatik-bg.de/impressum" target="_blank" rel="noopener">Impressum</a> · <a href="https://informatik-bg.de/datenschutz" target="_blank" rel="noopener">Datenschutz</a></p>
+</main>
+</body>
+</html>
