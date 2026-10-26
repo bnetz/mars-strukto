@@ -21,6 +21,10 @@ Oder diesen Ordner auf den eigenen Server legen und `mars-strukto.js` von dort l
 
 Eine Seite kann dem Editor eigene Befehle beibringen (z. B. für eine Roboter-Welt): `MarsStrukto.befehle([...])`. Beschreibung in `API.md`, lauffähiges Beispiel in `beispiel-roboter.html`.
 
+## Quelltext
+
+Der Quelltext liegt öffentlich auf GitHub: https://github.com/bnetz/mars-strukto – Verbesserungen bitte als Fork und Pull Request.
+
 ## Lizenz
 
 MIT-Lizenz, ohne Gewähr und ohne Unterstützung – siehe `LIZENZ.txt`. Die eingebetteten Schriften „Mars Sans“ und „Mars Code“ (Teilmengen von Source Sans Pro und Source Code Pro, Adobe) stehen unter der SIL Open Font License 1.1 – siehe `fonts/OFL.txt`.
