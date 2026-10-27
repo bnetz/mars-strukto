@@ -1,4 +1,4 @@
-# Mars-Strukto – Schnittstelle (API) für eigene Befehle
+﻿# Mars-Strukto – Schnittstelle (API) für eigene Befehle
 
 Version der Schnittstelle: 1 (Mars-Strukto 1.x). Stand: 26.10.2026.
 

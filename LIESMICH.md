@@ -1,4 +1,4 @@
-# Mars-Strukto
+﻿# Mars-Strukto
 
 Mars-Strukto ist der Struktogramm-Editor aus dem Lernspiel Escape from Mars (https://escape-from-mars.de/). Struktogramme nach der Operatorenliste für Struktogramme (Abitur Baden-Württemberg, Version 2.2) bauen, ausführen (Konsole, Ein- und Ausgabe, Variablen, Schritt-Betrieb) und als Datei oder Bild speichern – im Browser, ohne Anmeldung, ohne Cookies, ohne Bibliotheken.
 

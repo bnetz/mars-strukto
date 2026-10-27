@@ -1,4 +1,4 @@
-Schriften in Mars-Strukto
+﻿Schriften in Mars-Strukto
 
 „Mars Sans“ ist eine Teilmenge (nur ein Teil der Zeichen, umbenannt) von Source Sans Pro,
 „Mars Code“ eine Teilmenge (umbenannt) von Source Code Pro. Beide sind in js/schrift.js eingebettet.

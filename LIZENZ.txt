@@ -1,4 +1,4 @@
-Mars-Strukto – der Struktogramm-Editor aus Escape from Mars
+﻿Mars-Strukto – der Struktogramm-Editor aus Escape from Mars
 https://escape-from-mars.de/mars-strukto/
 
 Kurz auf Deutsch (rechtlich gilt der englische Text der MIT-Lizenz unten):
